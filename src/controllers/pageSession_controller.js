@@ -75,4 +75,98 @@ export const addUserToPage = (req, res) => {
       .then((result) => {
         res.json('Added user to page!');
       });
+};
+
+// Update an existing page session (PATCH)
+// Used to add final data after reading session ends
+export const updatePageSession = (req, res) => {
+  const sessionId = req.params.id;
+
+  // Build update object from request body
+  const updateFields = {};
+
+  // Core fields
+  if (req.body.timestampEnd !== undefined) updateFields.timestampEnd = req.body.timestampEnd;
+  if (req.body.sessionClosed !== undefined) updateFields.sessionClosed = req.body.sessionClosed;
+  if (req.body.quadFreqs !== undefined) updateFields.quadFreqs = req.body.quadFreqs;
+
+  // Summary metrics
+  if (req.body.summary !== undefined) updateFields.summary = req.body.summary;
+
+  // Event streams (JSONL)
+  if (req.body.gaze_events_jsonl !== undefined) updateFields.gaze_events_jsonl = req.body.gaze_events_jsonl;
+  if (req.body.ui_events_jsonl !== undefined) updateFields.ui_events_jsonl = req.body.ui_events_jsonl;
+
+  // Settings snapshot
+  if (req.body.settings_snapshot !== undefined) updateFields.settings_snapshot = req.body.settings_snapshot;
+
+  // Survey responses
+  if (req.body.survey_responses !== undefined) updateFields.survey_responses = req.body.survey_responses;
+
+  PageSession.findByIdAndUpdate(sessionId, updateFields, { new: true })
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({ error: 'PageSession not found' });
+      }
+      res.json({ message: 'PageSession updated!', session: result });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+};
+
+// Create page session and return the created document with _id
+export const createPageSessionWithId = (req, res) => {
+  const pageSession = new PageSession();
+  pageSession.url = req.body.url;
+  pageSession.title = req.body.title;
+  pageSession.user = req.body.user;
+  pageSession.timestampStart = req.body.timestampStart;
+  pageSession.timestampEnd = req.body.timestampEnd;
+  pageSession.sessionClosed = req.body.sessionClosed;
+  pageSession.quadFreqs = req.body.quadFreqs;
+
+  // New fields
+  if (req.body.settings_snapshot) {
+    pageSession.settings_snapshot = req.body.settings_snapshot;
+  }
+
+  pageSession.save()
+    .then((result) => {
+      // Return the created session with its _id
+      res.json({
+        message: 'PageSession created!',
+        sessionId: result._id,
+        session: result
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+};
+
+// Get a single page session by ID
+export const getPageSessionById = (req, res) => {
+  PageSession.findById(req.params.id)
+    .then((result) => {
+      if (!result) {
+        return res.status(404).json({ error: 'PageSession not found' });
+      }
+      res.json(result);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+};
+
+// Get all sessions for a user (for data export)
+export const getUserSessions = (req, res) => {
+  PageSession.find({ user: req.params.user })
+    .sort({ timestampStart: -1 })
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
 }

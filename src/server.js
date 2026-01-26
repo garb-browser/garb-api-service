@@ -16,8 +16,9 @@ app.use(cors());
 app.use(morgan('dev'));
 
 // enable json message body for posting data to API
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+// Increased limit to 5MB to handle research gaze data payloads
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
+app.use(bodyParser.json({ limit: '5mb' }));
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will not be prefixed with anything

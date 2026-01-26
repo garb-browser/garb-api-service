@@ -18,6 +18,19 @@ router.post('/signup', UserController.signup);
 router.route('/pageSessions')
 	.post(PageSessions.createPageSession);
 
+// New endpoint: create session and return ID for subsequent updates
+router.route('/pageSessions/create')
+	.post(PageSessions.createPageSessionWithId);
+
+// New endpoint: update session by ID (PATCH for partial updates)
+router.route('/pageSessions/:id')
+	.get(PageSessions.getPageSessionById)
+	.patch(PageSessions.updatePageSession);
+
+// New endpoint: get all sessions for a user (for data export)
+router.route('/pageSessions/user/:user')
+	.get(PageSessions.getUserSessions);
+
 router.post('/', function(req, res){
 	var data = res.body;
 	console.log("RES");
