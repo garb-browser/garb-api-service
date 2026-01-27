@@ -89,12 +89,24 @@ const PageSchema = new Schema({
     user_agent: { type: String, default: null },
     platform: { type: String, default: null },
 
-    // Eye tracker info
+    // Eye tracker info (supports Consumer and Pro devices)
     eye_tracker_model: { type: String, default: 'Tobii Eye Tracker 5' },
+    eye_tracker_type: { type: String, default: 'Consumer' }, // 'Consumer' or 'Pro'
+    eye_tracker_device_id: { type: String, default: null },
     nominal_sampling_rate: { type: Number, default: 60 },
 
+    // Pro device capabilities
+    supports_pupil_data: { type: Boolean, default: false },
+    supports_gaze_origin: { type: Boolean, default: false },
+    pro_data_enabled: { type: Boolean, default: false },
+
+    // Pro data summary (available when using Pro devices like Pro Nano)
+    avg_pupil_left_mm: { type: Number, default: null },
+    avg_pupil_right_mm: { type: Number, default: null },
+    has_gaze_origin_data: { type: Boolean, default: false },
+
     // Calibration method
-    calibration_method: { type: String, default: 'Tobii native 9-point' },
+    calibration_method: { type: String, default: 'Tobii Experience 9-point' },
   },
 
   // === PROCESSING METHODS DOCUMENTATION (for research paper) ===
