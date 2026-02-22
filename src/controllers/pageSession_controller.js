@@ -1,5 +1,4 @@
 import PageSession from '../models/pageSession_model';
-import User from '../models/user_model';
 
 export const createPageSession = (req, res) => {
   const pageSession = new PageSession();
@@ -48,33 +47,16 @@ export const getPageSessions = (req, res) => {
  //};
 
 export const deletePageSession = (req, res) => {
-  Page.findOneAndRemove({ url: req.params.url })
+  PageSession.findByIdAndDelete(req.params.id)
     .then((result) => {
-      res.json('Deleted page!');
+      if (!result) {
+        return res.status(404).json({ error: 'PageSession not found' });
+      }
+      res.json({ message: 'Deleted page session!' });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
     });
-};
-
-// req.body includes:
-// 1. url
-// 2. title
-// 3. [users] array
-export const updatePage = (req, res) => {
-  Page.findOneAndUpdate({ url: req.body.url }, req.body)
-    .then((result) => {
-      res.json('Updated page!');
-    });
-};
-
-// req.body includes:
-// 1. url
-// 2. new user's ID
-export const addUserToPage = (req, res) => {
-    Page.updateOne(
-      { url: req.body.url },
-      { $push: {users: req.body.userID} })
-      .then((result) => {
-        res.json('Added user to page!');
-      });
 };
 
 // Update an existing page session (PATCH)
