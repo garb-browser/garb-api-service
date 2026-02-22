@@ -27,9 +27,7 @@ app.use('', apiRouter);
 
 // additional init stuff should go before hitting the routing
 // DB Setup
-// const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/blog';
-//const mongoURI = 'mongodb+srv://garb_dbuser:vusW7BJbchkMZ@cluster0.o53iy.mongodb.net/garbdb?retryWrites=true&w=majority' || 'mongodb://localhost/blog';
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/blog';
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/garb';
 mongoose.connect(mongoURI);
 // set mongoose promises to es6 default
 mongoose.Promise = global.Promise;
