@@ -1,6 +1,18 @@
+import { body, validationResult } from 'express-validator';
 import PageSession from '../models/pageSession_model';
 
+export const validateCreatePageSession = [
+  body('url').notEmpty().withMessage('url is required').isURL().withMessage('url must be a valid URL'),
+  body('user').notEmpty().withMessage('user is required'),
+  body('timestampStart').notEmpty().withMessage('timestampStart is required'),
+];
+
 export const createPageSession = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const pageSession = new PageSession();
   pageSession.url = req.body.url;
   pageSession.title = req.body.title;

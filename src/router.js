@@ -16,7 +16,7 @@ router.post('/signin', requireSignin, UserController.signin);
 router.post('/signup', UserController.signup);
 
 router.route('/pageSessions')
-	.post(requireAuth, PageSessions.createPageSession);
+	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSession);
 
 // New endpoint: create session and return ID for subsequent updates
 router.route('/pageSessions/create')
