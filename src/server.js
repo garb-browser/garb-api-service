@@ -28,7 +28,12 @@ app.use('', apiRouter);
 // additional init stuff should go before hitting the routing
 // DB Setup
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/garb';
-mongoose.connect(mongoURI);
+mongoose.connect(mongoURI)
+  .then(() => console.log(`MongoDB connected: ${mongoURI.replace(/\/\/.*@/, '//***@')}`))
+  .catch((err) => {
+    console.error('MongoDB connection error:', err.message);
+    process.exit(1);
+  });
 // set mongoose promises to es6 default
 mongoose.Promise = global.Promise;
 
