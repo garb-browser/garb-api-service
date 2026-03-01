@@ -1,7 +1,18 @@
+import { body, validationResult } from 'express-validator';
 import PageSession from '../models/pageSession_model';
-import User from '../models/user_model';
+
+export const validateCreatePageSession = [
+  body('url').notEmpty().withMessage('url is required').isURL().withMessage('url must be a valid URL'),
+  body('user').notEmpty().withMessage('user is required'),
+  body('timestampStart').notEmpty().withMessage('timestampStart is required'),
+];
 
 export const createPageSession = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const pageSession = new PageSession();
   pageSession.url = req.body.url;
   pageSession.title = req.body.title;
@@ -48,33 +59,16 @@ export const getPageSessions = (req, res) => {
  //};
 
 export const deletePageSession = (req, res) => {
-  Page.findOneAndRemove({ url: req.params.url })
+  PageSession.findByIdAndDelete(req.params.id)
     .then((result) => {
-      res.json('Deleted page!');
+      if (!result) {
+        return res.status(404).json({ error: 'PageSession not found' });
+      }
+      res.json({ message: 'Deleted page session!' });
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
     });
-};
-
-// req.body includes:
-// 1. url
-// 2. title
-// 3. [users] array
-export const updatePage = (req, res) => {
-  Page.findOneAndUpdate({ url: req.body.url }, req.body)
-    .then((result) => {
-      res.json('Updated page!');
-    });
-};
-
-// req.body includes:
-// 1. url
-// 2. new user's ID
-export const addUserToPage = (req, res) => {
-    Page.updateOne(
-      { url: req.body.url },
-      { $push: {users: req.body.userID} })
-      .then((result) => {
-        res.json('Added user to page!');
-      });
 };
 
 // Update an existing page session (PATCH)
@@ -117,6 +111,11 @@ export const updatePageSession = (req, res) => {
 
 // Create page session and return the created document with _id
 export const createPageSessionWithId = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const pageSession = new PageSession();
   pageSession.url = req.body.url;
   pageSession.title = req.body.title;

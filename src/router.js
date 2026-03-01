@@ -16,20 +16,21 @@ router.post('/signin', requireSignin, UserController.signin);
 router.post('/signup', UserController.signup);
 
 router.route('/pageSessions')
-	.post(PageSessions.createPageSession);
+	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSession);
 
 // New endpoint: create session and return ID for subsequent updates
 router.route('/pageSessions/create')
-	.post(PageSessions.createPageSessionWithId);
+	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
 
 // New endpoint: update session by ID (PATCH for partial updates)
 router.route('/pageSessions/:id')
-	.get(PageSessions.getPageSessionById)
-	.patch(PageSessions.updatePageSession);
+	.get(requireAuth, PageSessions.getPageSessionById)
+	.patch(requireAuth, PageSessions.updatePageSession)
+	.delete(requireAuth, PageSessions.deletePageSession);
 
 // New endpoint: get all sessions for a user (for data export)
 router.route('/pageSessions/user/:user')
-	.get(PageSessions.getUserSessions);
+	.get(requireAuth, PageSessions.getUserSessions);
 
 router.post('/', function(req, res){
 	var data = res.body;
@@ -39,7 +40,7 @@ router.post('/', function(req, res){
 
 router.route('/pageSessions/:user/:url')
 	// .get(PageSessions.getPageSession)
-	.get(PageSessions.getPageSessions);
+	.get(requireAuth, PageSessions.getPageSessions);
 
 //router.route('/pageSessions/:user')
 //	.get(PageSessions.getPageSession);
