@@ -20,12 +20,13 @@ router.route('/pageSessions')
 
 // New endpoint: create session and return ID for subsequent updates
 router.route('/pageSessions/create')
-	.post(requireAuth, PageSessions.createPageSessionWithId);
+	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
 
 // New endpoint: update session by ID (PATCH for partial updates)
 router.route('/pageSessions/:id')
 	.get(requireAuth, PageSessions.getPageSessionById)
-	.patch(requireAuth, PageSessions.updatePageSession);
+	.patch(requireAuth, PageSessions.updatePageSession)
+	.delete(requireAuth, PageSessions.deletePageSession);
 
 // New endpoint: get all sessions for a user (for data export)
 router.route('/pageSessions/user/:user')

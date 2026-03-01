@@ -111,6 +111,11 @@ export const updatePageSession = (req, res) => {
 
 // Create page session and return the created document with _id
 export const createPageSessionWithId = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const pageSession = new PageSession();
   pageSession.url = req.body.url;
   pageSession.title = req.body.title;
