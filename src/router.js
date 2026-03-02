@@ -25,7 +25,7 @@ router.route('/pageSessions/create')
 // New endpoint: update session by ID (PATCH for partial updates)
 router.route('/pageSessions/:id')
 	.get(requireAuth, PageSessions.getPageSessionById)
-	.patch(requireAuth, PageSessions.updatePageSession)
+	.patch(PageSessions.updatePageSession)
 	.delete(requireAuth, PageSessions.deletePageSession);
 
 // New endpoint: get all sessions for a user (for data export)
@@ -40,7 +40,7 @@ router.post('/', function(req, res){
 
 router.route('/pageSessions/:user/:url')
 	// .get(PageSessions.getPageSession)
-	.get(requireAuth, PageSessions.getPageSessions);
+	.get(PageSessions.getPageSessions);
 
 //router.route('/pageSessions/:user')
 //	.get(PageSessions.getPageSession);
