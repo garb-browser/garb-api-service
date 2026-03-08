@@ -43,6 +43,24 @@ export const signup = async (req, res, next) => {
     }
 };
 
+// Technigala: email-only sign in (no password required)
+export const signinByEmail = async (req, res, next) => {
+    const { username } = req.body;
+    if (!username) {
+        return res.status(422).send('You must provide an email/username');
+    }
+    try {
+        const user = await User.findOne({ username }).exec();
+        if (!user) {
+            return res.status(404).send('User not found. Please sign up first.');
+        }
+        return res.send({ token: tokenForUser(user) });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error });
+    }
+};
+
 // req.body includes:
 // 1. username
 // 2. new page's ID
