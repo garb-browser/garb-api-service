@@ -78,9 +78,13 @@ export const updatePageSession = (req, res) => {
 
   // Accept all fields from request body (for Technigala flexibility)
   // Exclude _id and __v to prevent MongoDB errors
-  const updateFields = { ...req.body };
-  delete updateFields._id;
-  delete updateFields.__v;
+  // Accept all fields, but strip Mongo operators and protected keys
+  const updateFields = {};
+  for (const [key, value] of Object.entries(req.body)) {
+    if (!key.startsWith('$') && key !== '_id' && key !== '__v') {
+      updateFields[key] = value;
+    }
+  }
 
   PageSession.findByIdAndUpdate(sessionId, updateFields, { new: true })
     .then((result) => {
