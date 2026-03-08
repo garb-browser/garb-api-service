@@ -18,19 +18,20 @@ export const signin = (req, res, next) => {
 export const signup = async (req, res, next) => {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(422).send('You must provide username and password');
+    if (!username) {
+        return res.status(422).send('You must provide an email/username');
     }
 
     try {
         // Check for an existing user with the same username
         const existingUsers = await User.find({ username }).exec();
         if (existingUsers.length !== 0) {
-            return res.status(422).send('Username already exists.');
+            // Technigala: return token for existing user (idempotent signup)
+            return res.send({ token: tokenForUser(existingUsers[0]) });
         }
 
         // Create a new user
-        const user = new User({ username, password });
+        const user = new User({ username, password: password || 'technigala' });
 
         // Save the user to the database
         await user.save();
