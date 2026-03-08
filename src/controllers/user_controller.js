@@ -43,6 +43,26 @@ export const signup = async (req, res, next) => {
     }
 };
 
+// Technigala: email-only sign in (auto-creates if not found)
+export const signinByEmail = async (req, res, next) => {
+    const { username } = req.body;
+    if (!username) {
+        return res.status(422).send('You must provide an email/username');
+    }
+    try {
+        let user = await User.findOne({ username }).exec();
+        if (!user) {
+            // Auto-create for Technigala — no pre-provisioning needed
+            user = new User({ username, password: 'technigala' });
+            await user.save();
+        }
+        return res.send({ token: tokenForUser(user) });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error });
+    }
+};
+
 // req.body includes:
 // 1. username
 // 2. new page's ID
