@@ -43,16 +43,18 @@ export const signup = async (req, res, next) => {
     }
 };
 
-// Technigala: email-only sign in (no password required)
+// Technigala: email-only sign in (auto-creates if not found)
 export const signinByEmail = async (req, res, next) => {
     const { username } = req.body;
     if (!username) {
         return res.status(422).send('You must provide an email/username');
     }
     try {
-        const user = await User.findOne({ username }).exec();
+        let user = await User.findOne({ username }).exec();
         if (!user) {
-            return res.status(404).send('User not found. Please sign up first.');
+            // Auto-create for Technigala — no pre-provisioning needed
+            user = new User({ username, password: 'technigala' });
+            await user.save();
         }
         return res.send({ token: tokenForUser(user) });
     } catch (error) {

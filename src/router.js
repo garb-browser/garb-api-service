@@ -2,6 +2,10 @@ import { Router } from 'express';
 // import * as Posts from './controllers/post_controller';
 import * as UserController from './controllers/user_controller';
 import { requireAuth, requireSignin } from './services/passport';
+
+// Technigala study mode: skip auth when STUDY_MODE=true
+const studyMode = process.env.STUDY_MODE === 'true';
+const optionalAuth = studyMode ? (req, res, next) => next() : requireAuth;
 import * as PageSessions from './controllers/pageSession_controller';
 
 
@@ -19,21 +23,21 @@ router.post('/signup', UserController.signup);
 router.post('/signin-email', UserController.signinByEmail);
 
 router.route('/pageSessions')
-	.post(PageSessions.validateCreatePageSession, PageSessions.createPageSession);
+	.post(optionalAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSession);
 
 // New endpoint: create session and return ID for subsequent updates
 router.route('/pageSessions/create')
-	.post(PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
+	.post(optionalAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
 
 // New endpoint: update session by ID (PATCH for partial updates)
 router.route('/pageSessions/:id')
-	.get(PageSessions.getPageSessionById)
-	.patch(PageSessions.updatePageSession)
-	.delete(PageSessions.deletePageSession);
+	.get(optionalAuth, PageSessions.getPageSessionById)
+	.patch(optionalAuth, PageSessions.updatePageSession)
+	.delete(optionalAuth, PageSessions.deletePageSession);
 
 // New endpoint: get all sessions for a user (for data export)
 router.route('/pageSessions/user/:user')
-	.get(PageSessions.getUserSessions);
+	.get(optionalAuth, PageSessions.getUserSessions);
 
 router.post('/', function(req, res){
 	var data = res.body;
@@ -43,7 +47,7 @@ router.post('/', function(req, res){
 
 router.route('/pageSessions/:user/:url')
 	// .get(PageSessions.getPageSession)
-	.get(PageSessions.getPageSessions);
+	.get(optionalAuth, PageSessions.getPageSessions);
 
 //router.route('/pageSessions/:user')
 //	.get(PageSessions.getPageSession);
