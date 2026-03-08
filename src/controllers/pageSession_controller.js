@@ -76,26 +76,11 @@ export const deletePageSession = (req, res) => {
 export const updatePageSession = (req, res) => {
   const sessionId = req.params.id;
 
-  // Build update object from request body
-  const updateFields = {};
-
-  // Core fields
-  if (req.body.timestampEnd !== undefined) updateFields.timestampEnd = req.body.timestampEnd;
-  if (req.body.sessionClosed !== undefined) updateFields.sessionClosed = req.body.sessionClosed;
-  if (req.body.quadFreqs !== undefined) updateFields.quadFreqs = req.body.quadFreqs;
-
-  // Summary metrics
-  if (req.body.summary !== undefined) updateFields.summary = req.body.summary;
-
-  // Event streams (JSONL)
-  if (req.body.gaze_events_jsonl !== undefined) updateFields.gaze_events_jsonl = req.body.gaze_events_jsonl;
-  if (req.body.ui_events_jsonl !== undefined) updateFields.ui_events_jsonl = req.body.ui_events_jsonl;
-
-  // Settings snapshot
-  if (req.body.settings_snapshot !== undefined) updateFields.settings_snapshot = req.body.settings_snapshot;
-
-  // Survey responses
-  if (req.body.survey_responses !== undefined) updateFields.survey_responses = req.body.survey_responses;
+  // Accept all fields from request body (for Technigala flexibility)
+  // Exclude _id and __v to prevent MongoDB errors
+  const updateFields = { ...req.body };
+  delete updateFields._id;
+  delete updateFields.__v;
 
   PageSession.findByIdAndUpdate(sessionId, updateFields, { new: true })
     .then((result) => {
