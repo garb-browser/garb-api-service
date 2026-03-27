@@ -63,12 +63,6 @@ router.route('/pageSessions/:user/:url')
 //   .delete(requireAuth, Posts.deletePost);
 
 
-// TEMP: admin endpoint to list all sessions for Technigala data export (remove after)
-router.route('/admin/sessions/all')
-    .get((req, res) => {
-        PageSessions.getAllSessions(req, res);
-    });
 
 export default router;
 
-// trigger deploy
