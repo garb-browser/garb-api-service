@@ -2,6 +2,10 @@ import { Router } from 'express';
 // import * as Posts from './controllers/post_controller';
 import * as UserController from './controllers/user_controller';
 import { requireAuth, requireSignin } from './services/passport';
+
+// Technigala study mode: skip auth when STUDY_MODE=true
+const studyMode = process.env.STUDY_MODE === 'true';
+const optionalAuth = studyMode ? (req, res, next) => next() : requireAuth;
 import * as PageSessions from './controllers/pageSession_controller';
 
 
@@ -15,22 +19,25 @@ router.post('/signin', requireSignin, UserController.signin);
 
 router.post('/signup', UserController.signup);
 
+// Technigala: email-only sign in (no password, just look up user)
+router.post('/signin-email', UserController.signinByEmail);
+
 router.route('/pageSessions')
-	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSession);
+	.post(optionalAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSession);
 
 // New endpoint: create session and return ID for subsequent updates
 router.route('/pageSessions/create')
-	.post(requireAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
+	.post(optionalAuth, PageSessions.validateCreatePageSession, PageSessions.createPageSessionWithId);
 
 // New endpoint: update session by ID (PATCH for partial updates)
 router.route('/pageSessions/:id')
-	.get(requireAuth, PageSessions.getPageSessionById)
-	.patch(PageSessions.updatePageSession)
-	.delete(requireAuth, PageSessions.deletePageSession);
+	.get(optionalAuth, PageSessions.getPageSessionById)
+	.patch(optionalAuth, PageSessions.updatePageSession)
+	.delete(optionalAuth, PageSessions.deletePageSession);
 
 // New endpoint: get all sessions for a user (for data export)
 router.route('/pageSessions/user/:user')
-	.get(requireAuth, PageSessions.getUserSessions);
+	.get(optionalAuth, PageSessions.getUserSessions);
 
 router.post('/', function(req, res){
 	var data = res.body;
@@ -40,7 +47,7 @@ router.post('/', function(req, res){
 
 router.route('/pageSessions/:user/:url')
 	// .get(PageSessions.getPageSession)
-	.get(PageSessions.getPageSessions);
+	.get(optionalAuth, PageSessions.getPageSessions);
 
 //router.route('/pageSessions/:user')
 //	.get(PageSessions.getPageSession);
@@ -55,5 +62,11 @@ router.route('/pageSessions/:user/:url')
 //   .put(requireAuth, Posts.updatePost)
 //   .delete(requireAuth, Posts.deletePost);
 
+
+// TEMP: admin endpoint to list all sessions for Technigala data export (remove after)
+router.route('/admin/sessions/all')
+    .get((req, res) => {
+        PageSessions.getAllSessions(req, res);
+    });
 
 export default router;

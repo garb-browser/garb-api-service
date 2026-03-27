@@ -169,3 +169,13 @@ export const getUserSessions = (req, res) => {
       res.status(500).json({ error: error.message });
     });
 }
+
+// TEMP: get all sessions for Technigala data export
+export function getAllSessions(req, res) {
+    PageSession.find({})
+        .select('-gaze_events_jsonl -ui_events_jsonl')
+        .sort({ createdAt: -1 })
+        .limit(500)
+        .then(sessions => res.json(sessions))
+        .catch(err => res.status(500).json({ error: err.message }));
+}
