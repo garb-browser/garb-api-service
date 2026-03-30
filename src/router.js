@@ -8,6 +8,17 @@ const studyMode = process.env.STUDY_MODE === 'true';
 const optionalAuth = studyMode ? (req, res, next) => next() : requireAuth;
 import * as PageSessions from './controllers/pageSession_controller';
 
+// Admin-key middleware: requires ADMIN_KEY env var and matching Bearer token
+const adminKeyAuth = (req, res, next) => {
+  const adminKey = process.env.ADMIN_KEY;
+  if (!adminKey) {
+    return res.status(403).json({ error: 'Admin access not configured' });
+  }
+  if (req.headers.authorization !== 'Bearer ' + adminKey) {
+    return res.status(403).json({ error: 'Forbidden: invalid admin key' });
+  }
+  next();
+};
 
 const router = Router();
 
@@ -35,9 +46,9 @@ router.route('/pageSessions/:id')
 	.patch(optionalAuth, PageSessions.updatePageSession)
 	.delete(optionalAuth, PageSessions.deletePageSession);
 
-// New endpoint: get all sessions for a user (for data export)
+// Admin endpoint: get all sessions for a user (requires ADMIN_KEY)
 router.route('/pageSessions/user/:user')
-	.get(optionalAuth, PageSessions.getUserSessions);
+	.get(adminKeyAuth, PageSessions.getUserSessions);
 
 router.post('/', function(req, res){
 	var data = res.body;
@@ -65,4 +76,3 @@ router.route('/pageSessions/:user/:url')
 
 
 export default router;
-
